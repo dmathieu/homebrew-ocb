@@ -1,0 +1,22 @@
+name: Test
+on:
+  push:
+    branches: [main]
+  pull_request:
+env:
+  HOMEBREW_DEVELOPER: 1
+jobs:
+  test:
+    strategy:
+      matrix:
+        os:
+          - macos-latest
+          - ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Homebrew
+        if: runner.os == 'Linux'
+        uses: Homebrew/actions/setup-homebrew@main
+      - run: brew install --build-from-source Formula/ocb.rb
+      - run: ocb version

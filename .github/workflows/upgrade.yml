@@ -1,0 +1,48 @@
+name: Upgrade OCB version
+
+on:
+  schedule:
+    # Run daily at 08:00 UTC
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Collector version to pin (e.g. 0.148.0). Leave empty to auto-detect latest."
+        required: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout tap
+        uses: actions/checkout@v4
+      - name: Run upgrade script
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./tools/upgrade.sh "${{ github.event.inputs.version }}"
+      - name: Read new version
+        id: version
+        run: |
+          echo "value=$(sed -n 's/^  version "\(.*\)"/\1/p' Formula/ocb.rb | head -1)" >> "$GITHUB_OUTPUT"
+      - name: Open pull request
+        if: steps.version.outputs.version != steps.current.outputs.version
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ github.token }}
+          commit-message: "ocb: bump to v${{ steps.version.outputs.version }}"
+          branch: "bump/ocb-v${{ steps.version.outputs.version }}"
+          title: "ocb: bump to v${{ steps.version.outputs.version }}"
+          body: |
+            Automated version bump for `ocb` (OpenTelemetry Collector Builder).
+
+            - **Previous version:** v${{ steps.current.outputs.version }}
+            - **New version:** v${{ steps.version.outputs.version }}
+
+            Upstream release:
+            https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/cmd%2Fbuilder%2Fv${{ steps.version.outputs.version }}
+          delete-branch: true
