@@ -13,7 +13,7 @@ brew install ocb
 Or in one step:
 
 ```sh
-brew install dmathieu/ocb/ocb
+brew install dmathieu/ocb
 ```
 
 ## Usage
