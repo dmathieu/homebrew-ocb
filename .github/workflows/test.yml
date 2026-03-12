@@ -14,7 +14,7 @@ jobs:
           - ubuntu-latest
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Setup Homebrew
         if: runner.os == 'Linux'
         uses: Homebrew/actions/setup-homebrew@main
