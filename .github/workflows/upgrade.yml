@@ -31,7 +31,7 @@ jobs:
           echo "value=$(sed -n 's/^  version "\(.*\)"/\1/p' Formula/ocb.rb | head -1)" >> "$GITHUB_OUTPUT"
       - name: Open pull request
         if: steps.version.outputs.version != steps.current.outputs.version
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ github.token }}
           commit-message: "ocb: bump to v${{ steps.version.outputs.version }}"
