@@ -26,23 +26,11 @@ TARGET_VERSION="${TARGET_VERSION#v}"
 if [ -z "$TARGET_VERSION" ]; then
 	info "No version specified — detecting latest OCB release..."
 
-	if command -v gh >/dev/null 2>&1; then
-		# Fast path: use the GitHub CLI if available
-		TARGET_VERSION=$(
-			gh api "repos/open-telemetry/opentelemetry-collector-releases/releases" \
-				--jq '[.[] | select(.tag_name | startswith("cmd/builder/v")) | .tag_name] | first' \
-			| sed 's|cmd/builder/v||'
-		)
-	else
-		# Fallback: parse the GitHub releases page via the API (no auth required for public repos)
-		TARGET_VERSION=$(
-			curl -fsSL \
-				"https://api.github.com/repos/open-telemetry/opentelemetry-collector-releases/releases" \
-			| grep -o '"tag_name": "cmd/builder/v[^"]*"' \
-			| head -1 \
-			| sed 's|"tag_name": "cmd/builder/v||;s|"||'
-		)
-	fi
+	TARGET_VERSION=$(
+		gh api "repos/open-telemetry/opentelemetry-collector-releases/releases" \
+			--jq '[.[] | select(.tag_name | startswith("cmd/builder/v")) | select(.prerelease == false)] | sort_by(.created_at) | last | .tag_name' \
+		| sed 's|cmd/builder/v||'
+	)
 
 	[ -n "$TARGET_VERSION" ] || die "Could not determine latest OCB version"
 	info "Latest version: ${TARGET_VERSION}"
@@ -98,27 +86,24 @@ done
 
 info "Updating ${FORMULA}"
 
-# 1. Bump the version line
-sed -i.bak "s/version \"${CURRENT_VERSION}\"/version \"${TARGET_VERSION}\"/" "$FORMULA"
-
-# 2. Replace sha256 values by their associated platform comment context.
-#    Each sha256 line immediately follows its url line, and the platform is
-#    encoded in the url itself — so we match on url content to find the right sha.
-#
-#    Strategy: replace each sha256 line that sits under a darwin_arm64 url, etc.
-#    We use awk for a portable, multi-platform sed-free approach.
-awk -v sha_da="${SHA_DARWIN_ARM64}" \
+# Bump version and replace all sha256 values in a single awk pass so the
+# formula is never left in a partially-patched state.
+awk -v new_ver="${TARGET_VERSION}" \
+		-v sha_da="${SHA_DARWIN_ARM64}" \
 		-v sha_dx="${SHA_DARWIN_AMD64}" \
 		-v sha_la="${SHA_LINUX_ARM64}"  \
 		-v sha_lx="${SHA_LINUX_AMD64}"  '
 {
+	if (/^  version "/) {
+		sub(/"[^"]*"/, "\"" new_ver "\"")
+	}
+
 	if (/darwin_arm64/) { pending = sha_da }
 	else if (/darwin_amd64/) { pending = sha_dx }
 	else if (/linux_arm64/)  { pending = sha_la }
 	else if (/linux_amd64/)  { pending = sha_lx }
 
 	if (/sha256 "/ && pending != "") {
-		# Replace whatever is between the quotes with the new sha
 		sub(/"[^"]*"/, "\"" pending "\"")
 		pending = ""
 	}
@@ -128,7 +113,6 @@ awk -v sha_da="${SHA_DARWIN_ARM64}" \
 ' "$FORMULA" > "${FORMULA}.new"
 
 mv "${FORMULA}.new" "$FORMULA"
-rm -f "${FORMULA}.bak"
 
 # ---------------------------------------------------------------------------
 # Verify the result looks sane
