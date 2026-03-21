@@ -30,19 +30,17 @@ jobs:
         run: |
           echo "value=$(sed -n 's/^  version "\(.*\)"/\1/p' Formula/ocb.rb | head -1)" >> "$GITHUB_OUTPUT"
       - name: Open pull request
-        if: steps.version.outputs.version != steps.current.outputs.version
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ github.token }}
-          commit-message: "ocb: bump to v${{ steps.version.outputs.version }}"
-          branch: "bump/ocb-v${{ steps.version.outputs.version }}"
-          title: "ocb: bump to v${{ steps.version.outputs.version }}"
+          commit-message: "ocb: bump to v${{ steps.version.outputs.value }}"
+          branch: "bump/ocb-v${{ steps.version.outputs.value }}"
+          title: "ocb: bump to v${{ steps.version.outputs.value }}"
           body: |
             Automated version bump for `ocb` (OpenTelemetry Collector Builder).
 
-            - **Previous version:** v${{ steps.current.outputs.version }}
-            - **New version:** v${{ steps.version.outputs.version }}
+            - **New version:** v${{ steps.version.outputs.value }}
 
             Upstream release:
-            https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/cmd%2Fbuilder%2Fv${{ steps.version.outputs.version }}
+            https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/cmd%2Fbuilder%2Fv${{ steps.version.outputs.value }}
           delete-branch: true
