@@ -19,4 +19,6 @@ jobs:
         if: runner.os == 'Linux'
         uses: Homebrew/actions/setup-homebrew@main
       - run: brew install --build-from-source Formula/ocb.rb
+        env:
+          HOMEBREW_NO_SANDBOX_LINUX: 1
       - run: ocb version
