@@ -1,30 +1,30 @@
 class Ocb < Formula
   desc "OpenTelemetry Collector Builder - assemble custom OTel Collector distributions"
   homepage "https://github.com/open-telemetry/opentelemetry-collector/tree/main/cmd/builder"
-  version "0.156.0"
+  version "0.157.0"
   license "Apache-2.0"
 
   on_macos do
     on_arm do
       url "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/cmd%2Fbuilder%2Fv#{version}/ocb_#{version}_darwin_arm64"
-      sha256 "f8a90b8538624e845e2d08c9c6ddfe4192ab44b7cbf164a1839db4b43bc4f1a0"
+      sha256 "0c34a166bf5df8a252c38c669218670caaeb991340d60c7322cccf8a83874a59"
     end
 
     on_intel do
       url "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/cmd%2Fbuilder%2Fv#{version}/ocb_#{version}_darwin_amd64"
-      sha256 "ff805f28ea7ca89308bea5592de0eb1bc7b19773a3fc364c176a7d4208d1e92d"
+      sha256 "b7e42f24d9066ad39031514b1cd6ad0909470f7fc734f068bd076102c30aaf97"
     end
   end
 
   on_linux do
     on_arm do
       url "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/cmd%2Fbuilder%2Fv#{version}/ocb_#{version}_linux_arm64"
-      sha256 "3691a114e9097f975138d9b1b88cdd5552ffcc165597745ddb04b6447fdd703b"
+      sha256 "e3014042272dbf3fc44db390086757041a672550664d50d3961163d3501c5b02"
     end
 
     on_intel do
       url "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/cmd%2Fbuilder%2Fv#{version}/ocb_#{version}_linux_amd64"
-      sha256 "6fc8f3f0bf864c7cdbecf8a14420b22d4df3e287459757b5ce3018eaee1f6251"
+      sha256 "619da0091cb826ff96cac1bf98d2e5cee814a3789b37005c9a92d5d7cda0b584"
     end
   end
 
