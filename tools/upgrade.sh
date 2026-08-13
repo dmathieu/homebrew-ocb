@@ -55,19 +55,16 @@ fi
 # ---------------------------------------------------------------------------
 
 BASE_URL="https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/cmd%2Fbuilder%2Fv${TARGET_VERSION}"
-CHECKSUM_URL="${BASE_URL}/checksums.txt"
 
-info "Fetching checksums from ${CHECKSUM_URL}"
-CHECKSUMS=$(curl -fsSL "$CHECKSUM_URL") || die "Failed to download checksums for v${TARGET_VERSION}"
-
-extract_sha() {
-	printf '%s' "$CHECKSUMS" | grep "${1}$" | awk '{print $1}'
+fetch_sha() {
+	curl -fsSL "${BASE_URL}/ocb_${TARGET_VERSION}_${1}.sha256" || die "Failed to download checksum for ${1} v${TARGET_VERSION}"
 }
 
-SHA_DARWIN_ARM64=$(extract_sha "ocb_${TARGET_VERSION}_darwin_arm64")
-SHA_DARWIN_AMD64=$(extract_sha "ocb_${TARGET_VERSION}_darwin_amd64")
-SHA_LINUX_ARM64=$(extract_sha  "ocb_${TARGET_VERSION}_linux_arm64")
-SHA_LINUX_AMD64=$(extract_sha  "ocb_${TARGET_VERSION}_linux_amd64")
+info "Fetching checksums for v${TARGET_VERSION}"
+SHA_DARWIN_ARM64=$(fetch_sha "darwin_arm64")
+SHA_DARWIN_AMD64=$(fetch_sha "darwin_amd64")
+SHA_LINUX_ARM64=$(fetch_sha  "linux_arm64")
+SHA_LINUX_AMD64=$(fetch_sha  "linux_amd64")
 
 for pair in \
 	"darwin_arm64:${SHA_DARWIN_ARM64}" \
