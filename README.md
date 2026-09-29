@@ -1,5 +1,8 @@
 # Homebrew Tap for OCB
 
+> [!CAUTION]
+> This tap is deprecated and archived. You should use the official [homebrew-tap](https://github.com/open-telemetry/homebrew-tap/) instead.
+
 A Homebrew tap for
 [OCB](https://github.com/open-telemetry/opentelemetry-collector/tree/main/cmd/builder)
 
